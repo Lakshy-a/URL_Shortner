@@ -7,6 +7,7 @@
         "prettier": "^3.6.2"
     },
     "dependencies": {
+        "express-rate-limit": "^8.1.0",
         "pino": "^9.11.0",
         "pino-roll": "^3.1.0",
         "rotating-file-stream": "^3.2.7"
