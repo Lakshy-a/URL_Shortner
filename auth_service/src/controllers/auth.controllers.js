@@ -1,3 +1,5 @@
+import bcrypt from 'bcryptjs'
+
 import { asyncHandler } from '../utils/asyncHandler.util.js'
 import { ErrorResponse } from '../utils/errorResponse.utils.js'
 import { generateAccessToken, generateRefreshToken } from '../utils/generateToken.util.js'
@@ -18,4 +20,25 @@ export const register = asyncHandler(async (req, res) => {
     const saveUser = await newUser.save()
 
     res.status(201).json({ message: 'User registered successfully' })
+})
+
+export const login = asyncHandler(async (req, res) => {
+    const { email, password } = req.body
+
+    const user = await User.findOne({ email })
+    if (!user) throw new ErrorResponse('User does not exist', 400)
+
+    const isPasswordMatch = await bcrypt.compare(password, user.password)
+    if (!isPasswordMatch) throw new ErrorResponse('Incorrect password', 401)
+
+    const accessToken = generateAccessToken({
+        id: user._id,
+        email,
+    })
+
+    res.status(200).json({
+        success: true,
+        message: 'Login successful',
+        token: accessToken,
+    })
 })
