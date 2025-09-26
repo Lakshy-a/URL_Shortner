@@ -1,4 +1,4 @@
-import logger from '../utils/logger.util'
+import logger from '../utils/logger.util.js'
 
 export const requestLogger = (req, res, next) => {
     const start = Date.now()
