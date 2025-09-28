@@ -4,6 +4,7 @@ import { asyncHandler } from '../utils/asyncHandler.util.js'
 import { ErrorResponse } from '../utils/errorResponse.utils.js'
 import { generateAccessToken, generateRefreshToken } from '../utils/generateToken.util.js'
 import { User } from '../models/user.models.js'
+import { publishUserRegistered } from '../events/userRegistered.event.js'
 
 export const register = asyncHandler(async (req, res) => {
     const { userName, email, password } = req.body
@@ -18,6 +19,7 @@ export const register = asyncHandler(async (req, res) => {
     })
 
     const saveUser = await newUser.save()
+    await publishUserRegistered(newUser)
 
     res.status(201).json({ message: 'User registered successfully' })
 })
