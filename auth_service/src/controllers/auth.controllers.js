@@ -19,7 +19,7 @@ export const register = asyncHandler(async (req, res) => {
     })
 
     const saveUser = await newUser.save()
-    await publishUserRegistered(newUser)
+    await publishUserRegistered({ email: saveUser.email, userName: saveUser.userName })
 
     res.status(201).json({ message: 'User registered successfully' })
 })
