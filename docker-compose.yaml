@@ -1,15 +1,15 @@
 version: '3.9'
 services:
-    mongo:
-        image: mongo:latest
-        container_name: my-mongo
-        ports:
-            - '27017:27017'
-        environment:
-            MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
-            MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
-        volumes:
-            - mongo-data:/data/db
+    # mongo:
+    #     image: mongo:latest
+    #     container_name: my-mongo
+    #     ports:
+    #         - '27017:27017'
+    #     environment:
+    #         MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+    #         MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    #     volumes:
+    #         - mongo-data:/data/db
 
     rabbitmq:
         image: rabbitmq:3-management
