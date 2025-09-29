@@ -9,6 +9,4 @@ export const publishUserRegistered = async (user) => {
     channel.sendToQueue(queue, Buffer.from(JSON.stringify(user)), {
         persistent: true,
     }) // channel.sendToQueue(queue, message, options)
-
-    console.log('📨 Sent message to queue:', user.email)
 }
