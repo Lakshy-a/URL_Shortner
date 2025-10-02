@@ -1,11 +1,15 @@
 import dotenv from 'dotenv'
-
 dotenv.config()
 
-import { consumeUserRegistered } from './consumers/userRegistered.consumer.js'
+import { consumeUserRegistered } from './consumers/userRegistered.consumer.js';
+import { connectToRabbitMQ } from './config/connectToRabbitMq.config.js';
 
-console.log('Email service starting...')
-
-consumeUserRegistered()
-    .then(() => console.log('Consumer connected to RabbitMQ'))
-    .catch((err) => console.error('❌ Failed to connect consumer', err))
+// Use it
+connectToRabbitMQ()
+    .then(connection => {
+        consumeUserRegistered();
+    })
+    .catch(err => {
+        console.error('💥 Fatal error:', err);
+        process.exit(1);
+    });
