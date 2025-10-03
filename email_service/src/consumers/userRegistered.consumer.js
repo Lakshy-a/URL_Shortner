@@ -12,7 +12,7 @@ export const consumeUserRegistered = async () => {
     channel.consume(queue, async (msg) => {
         if (msg !== null) {
             const user = JSON.parse(msg.content.toString())
-            const emailContent = welcomeEmail(user.userName)
+            const emailContent = welcomeEmail(user.userName, user.token)
 
             await sendEmail(user.email, emailContent)
 

@@ -23,8 +23,17 @@ export const register = asyncHandler(async (req, res) => {
         password,
     })
 
+    const verificationToken = genaretResetToken({ id: newUser._id })
+    newUser.verificationToken = verificationToken
+
+    const verificationUrl = `http://localhost:8000/api/v1/auth/verify-email/${verificationToken}`
+
     const saveUser = await newUser.save()
-    await publishUserRegistered({ email: saveUser.email, userName: saveUser.userName })
+    await publishUserRegistered({
+        email: saveUser.email,
+        userName: saveUser.userName,
+        token: verificationUrl,
+    })
 
     res.status(201).json({ message: 'User registered successfully' })
 })
@@ -95,25 +104,38 @@ export const resetPassword = asyncHandler(async (req, res) => {
     const { newPassword } = req.body
     const { token } = req.query
 
-    try {
-        const decoded = verifyResetToken(token)
-        const user = await User.findById(decoded.id)
+    const decoded = verifyResetToken(token)
+    const user = await User.findById(decoded.id)
 
-        if (!user) {
-            throw new ErrorResponse('User not found', 404)
-        }
-
-        const salt = await bcrypt.genSalt(10)
-        const hashedPassword = await bcrypt.hash(newPassword, salt)
-
-        await User.updateOne(
-            { _id: user._id },
-            { $set: { password: hashedPassword} }
-        );
-
-        res.status(200).json({ message: 'Password has been reset successfully' })
-    } catch (error) {
-        console.error('Reset password error:', error.message)
-        throw new ErrorResponse('Invalid or expired token', 400)
+    if (!user) {
+        throw new ErrorResponse('User not found', 404)
     }
+
+    const salt = await bcrypt.genSalt(10)
+    const hashedPassword = await bcrypt.hash(newPassword, salt)
+
+    await User.updateOne({ _id: user._id }, { $set: { password: hashedPassword } })
+
+    res.status(200).json({ message: 'Password has been reset successfully' })
+})
+
+export const verifyEmail = asyncHandler(async (req, res) => {
+    const { token } = req.params
+
+    const decoded = verifyResetToken(token)
+    const user = await User.findById(decoded.id)
+
+    if (!user) {
+        throw new ErrorResponse('User not found', 404)
+    }
+
+    if (user.isVerified) {
+        return res.status(400).json({ message: 'Email is already verified' })
+    }
+
+    user.isVerified = true
+    user.verificationToken = ''
+    await user.save({ validateBeforeSave: false })
+
+    res.status(200).json({ message: 'Email verified successfully (simulated)' })
 })
