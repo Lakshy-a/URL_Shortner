@@ -2,9 +2,14 @@ import bcrypt from 'bcryptjs'
 
 import { asyncHandler } from '../utils/asyncHandler.util.js'
 import { ErrorResponse } from '../utils/errorResponse.utils.js'
-import { generateAccessToken, generateRefreshToken } from '../utils/generateToken.util.js'
+import {
+    genaretResetToken,
+    generateAccessToken,
+    generateRefreshToken,
+    verifyResetToken,
+} from '../utils/generateToken.util.js'
 import { User } from '../models/user.models.js'
-import { publishUserRegistered } from '../events/userRegistered.event.js'
+import { publishUserForgotPassword, publishUserRegistered } from '../events/userRegistered.event.js'
 
 export const register = asyncHandler(async (req, res) => {
     const { userName, email, password } = req.body
@@ -36,11 +41,79 @@ export const login = asyncHandler(async (req, res) => {
     const accessToken = generateAccessToken({
         id: user._id,
         email,
+        userName: user.userName,
     })
+
+    const refreshToken = generateRefreshToken({
+        id: user._id,
+        email,
+        userName: user.userName,
+    })
+
+    user.refreshToken = refreshToken
+    await user.save({ validateBeforeSave: false })
 
     res.status(200).json({
         success: true,
         message: 'Login successful',
         token: accessToken,
     })
+})
+
+export const forgotPassword = asyncHandler(async (req, res) => {
+    const { email } = req.body
+
+    const user = await User.findOne({ email })
+    if (!user) {
+        throw new ErrorResponse('User not found', 404)
+    }
+
+    // Generate reset token
+    const resetToken = genaretResetToken({ id: user._id })
+    const resetUrl = `http://localhost:8000/api/v1/auth/reset-password?token=${resetToken}`
+
+    await publishUserForgotPassword({ email, userName: user.userName, resetUrl })
+
+    res.status(200).json({ message: 'Password reset link sent to email (simulated)' })
+})
+
+export const logout = asyncHandler(async (req, res) => {
+    const userId = req.user.id
+    const user = await User.findById(userId)
+    if (!user) {
+        throw new ErrorResponse('User not found', 404)
+    }
+
+    // Remove refresh token from DB
+    user.refreshToken = ''
+    await user.save({ validateBeforeSave: false })
+
+    res.status(200).json({ message: 'Logged out successfully' })
+})
+
+export const resetPassword = asyncHandler(async (req, res) => {
+    const { newPassword } = req.body
+    const { token } = req.query
+
+    try {
+        const decoded = verifyResetToken(token)
+        const user = await User.findById(decoded.id)
+
+        if (!user) {
+            throw new ErrorResponse('User not found', 404)
+        }
+
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(newPassword, salt)
+
+        await User.updateOne(
+            { _id: user._id },
+            { $set: { password: hashedPassword} }
+        );
+
+        res.status(200).json({ message: 'Password has been reset successfully' })
+    } catch (error) {
+        console.error('Reset password error:', error.message)
+        throw new ErrorResponse('Invalid or expired token', 400)
+    }
 })
