@@ -139,3 +139,14 @@ export const verifyEmail = asyncHandler(async (req, res) => {
 
     res.status(200).json({ message: 'Email verified successfully (simulated)' })
 })
+
+export const getCurrentUser = asyncHandler(async (req, res) => {
+    const userId = req.user.id
+    const user = await User.findById(userId).select('-password -refreshToken -verificationToken')
+
+    if (!user) {
+        throw new ErrorResponse('User not found', 404)
+    }
+
+    res.status(200).json({ user });
+})
