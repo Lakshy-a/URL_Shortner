@@ -1,5 +1,6 @@
 import express from 'express'
 import {
+    changePassword,
     forgotPassword,
     getCurrentUser,
     login,
@@ -27,7 +28,7 @@ router.post('/reset-password', resetPasswordValidator, validate, resetPassword)
 router.get('/verify-email/:token', verifyEmail)
 
 // Protected routes (require authentication)
-router.get('/me', authMiddleware, getCurrentUser);
 router.post('/logout', authMiddleware, logout)
+router.put('/change-password', authMiddleware, changePassword);
 
 export default router
