@@ -148,23 +148,23 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
         throw new ErrorResponse('User not found', 404)
     }
 
-    res.status(200).json({ user });
+    res.status(200).json({ user })
 })
 
 export const changePassword = asyncHandler(async (req, res) => {
-    const userId = req.user.id;
-    const { currentPassword, newPassword } = req.body;
+    const userId = req.user.id
+    const { currentPassword, newPassword } = req.body
 
-    const user = await User.findById(userId);
+    const user = await User.findById(userId)
     if (!user) {
-        throw new ErrorResponse('User not found', 404);
+        throw new ErrorResponse('User not found', 404)
     }
-    
-    const isPasswordMatch = await bcrypt.compare(currentPassword, user.password);
-    if (!isPasswordMatch) throw new ErrorResponse('Current password is incorrect', 401);
 
-    user.password = newPassword;
-    await user.save();
+    const isPasswordMatch = await bcrypt.compare(currentPassword, user.password)
+    if (!isPasswordMatch) throw new ErrorResponse('Current password is incorrect', 401)
 
-    res.status(200).json({ message: 'Password changed successfully' });
+    user.password = newPassword
+    await user.save()
+
+    res.status(200).json({ message: 'Password changed successfully' })
 })
