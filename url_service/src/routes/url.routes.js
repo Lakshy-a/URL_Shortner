@@ -6,10 +6,11 @@ import {
     shortenUrl,
     updateUrl,
 } from '../controllers/url.controllers.js'
+import { optionalAuth } from '../middlewares/optionalAuth.controller.js'
 
 const router = express.Router()
 
-router.post('/shorten', shortenUrl)
+router.post('/shorten', optionalAuth, shortenUrl)
 router.get('/:shortCode', redirectToOriginalUrl)
 router.get('/info/:shortCode', getUrlInfo)
 router.put('/:shortCode', updateUrl)

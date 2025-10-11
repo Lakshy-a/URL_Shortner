@@ -32,6 +32,13 @@ const userSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        shortUrls: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Url',
+                default: [],
+            },
+        ],
     },
     { timestamps: true }
 )
