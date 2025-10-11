@@ -1,4 +1,5 @@
 import amqp from 'amqplib'
+import { User } from '../models/user.models.js'
 
 export const consumeUserCreatedShortUrl = async (handleMessage) => {
     const connection = await amqp.connect(process.env.RABBITMQ_URL)
@@ -11,15 +12,34 @@ export const consumeUserCreatedShortUrl = async (handleMessage) => {
         async (msg) => {
             if (msg !== null) {
                 try {
-                    const { userId, shortUrlObjectId } = JSON.parse(msg.content.toString())
+                    const {
+                        userId,
+                        shortUrlObjectId,
+                        shortCode,
+                        originalUrl,
+                        clicks,
+                        createdAt,
+                        expiresAt,
+                        isActive,
+                    } = JSON.parse(msg.content.toString())
 
-                    if (!userId || !shortUrlObjectId) {
-                        console.error('Invalid message format:', msg.content.toString())
-                        return channel.ack(msg)
-                    }
+                    // if (!userId || !shortUrlObjectId || !shortCode || !originalUrl || clicks === undefined || !createdAt || isActive === undefined ) {
+                    //     console.error('Invalid message format:', msg.content.toString())
+                    //     return channel.ack(msg)
+                    // }
 
                     await User.findByIdAndUpdate(userId, {
-                        $push: { shortUrls: shortUrlObjectId },
+                        $push: {
+                            shortUrls: {
+                                _id: shortUrlObjectId,
+                                shortCode,
+                                originalUrl,
+                                clicks,
+                                createdAt,
+                                expiresAt,
+                                isActive,
+                            },
+                        },
                     })
 
                     channel.ack(msg)

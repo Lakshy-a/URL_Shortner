@@ -17,7 +17,7 @@ app.use('/api/v1/url/', urlRoutes)
 connectToRabbitMQ()
     .then((connection) => {
         const testPayload = {
-            userId: '123',
+            userId: '123456789012345678901234',
             fullUrl: 'https://example.com',
             shortUrl: 'abc123',
         }

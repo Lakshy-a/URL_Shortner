@@ -34,9 +34,25 @@ const userSchema = new mongoose.Schema(
         },
         shortUrls: [
             {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'Url',
-                default: [],
+                _id: mongoose.Schema.Types.ObjectId,
+                shortCode: String,
+                originalUrl: String,
+                clicks: {
+                    type: Number,
+                    default: 0,
+                },
+                createdAt: {
+                    type: Date,
+                    default: Date.now,
+                },
+                expiresAt: {
+                    type: Date,
+                    default: null,
+                },
+                isActive: {
+                    type: Boolean,
+                    default: true,
+                },
             },
         ],
     },

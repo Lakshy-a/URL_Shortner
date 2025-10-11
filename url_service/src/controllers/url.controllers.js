@@ -7,6 +7,7 @@ import { ErrorResponse } from '../utils/errorResponse.utils copy.js'
 
 import { Url } from '../models/url.model.js'
 import { publishUserCreatedShortUrl } from '../publishers/createdShortUrl.publisher.js'
+import exp from 'constants'
 
 export const shortenUrl = asyncHandler(async (req, res) => {
     const { originalUrl } = req.body
@@ -27,6 +28,12 @@ export const shortenUrl = asyncHandler(async (req, res) => {
     publishUserCreatedShortUrl({
         userId,
         shortUrlObjectId: newUrl._id,
+        shortCode,
+        originalUrl,
+        clicks: 0,
+        createdAt: newUrl.createdAt,
+        expiresAt,
+        isActive: true,
     })
 
     res.status(201).json({ message: 'URL shortened successfully', shortUrl, expiresAt })
