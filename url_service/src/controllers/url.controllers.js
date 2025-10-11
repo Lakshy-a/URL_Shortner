@@ -6,30 +6,30 @@ import { errorHandler } from '../middlewares/errorHandler.middleware.js'
 import { ErrorResponse } from '../utils/errorResponse.utils copy.js'
 
 import { Url } from '../models/url.model.js'
+import { publishUserCreatedShortUrl } from '../publishers/createdShortUrl.publisher.js'
 
 export const shortenUrl = asyncHandler(async (req, res) => {
     const { originalUrl } = req.body
     const shortCode = nanoid()
-
-    const ifExists = await Url.findOne({ originalUrl })
-    if (ifExists) {
-        return res.status(200).json({
-            message: 'URL shortened successfully',
-            shortUrl: `${process.env.BASE_URL}/${ifExists.shortCode}`,
-        })
-    }
+    const userId = req.user ? req.user.id : null
 
     if (!originalUrl || !/^https?:\/\/\w+/.test(originalUrl)) {
         throw new ErrorResponse('Please provide a valid URL', 400)
     }
 
-    const shortUrl = `${process.env.BASE_URL}/${shortCode}`
-    console.log('Hello', shortUrl)
+    const expiresAt = userId ? null : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
 
-    const newUrl = new Url({ originalUrl, shortCode })
+    const shortUrl = `${process.env.BASE_URL}/${shortCode}`
+
+    const newUrl = new Url({ originalUrl, shortCode, expiresAt, userId })
     await newUrl.save()
 
-    res.status(201).json({ message: 'URL shortened successfully', shortUrl })
+    publishUserCreatedShortUrl({
+        userId,
+        shortUrlObjectId: newUrl._id,
+    })
+
+    res.status(201).json({ message: 'URL shortened successfully', shortUrl, expiresAt })
 })
 
 export const redirectToOriginalUrl = asyncHandler(async (req, res) => {

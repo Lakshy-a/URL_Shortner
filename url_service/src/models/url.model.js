@@ -25,19 +25,25 @@ const urlSchema = new mongoose.Schema(
             type: Boolean,
             default: true,
         },
+
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            index: true,
+            default: null,
+        },
+
+        expiresAt: {
+            type: Date,
+            default: null,
+            index: true,
+        },
         //   customAlias: {
         //     type: String,
         //     unique: true,
         //     sparse: true,
         //     trim: true
         //     // Only allowed if userId exists (logged in users)
-        //   },
-
-        //   userId: {
-        //     type: mongoose.Schema.Types.ObjectId,
-        //     ref: 'User',
-        //     index: true,
-        //     default: null // null for anonymous users
         //   },
 
         // clickLimit: {

@@ -9,7 +9,8 @@ import {
     verifyResetToken,
 } from '../utils/generateToken.util.js'
 import { User } from '../models/user.models.js'
-import { publishUserForgotPassword, publishUserRegistered } from '../events/userRegistered.event.js'
+import { publishUserRegistered } from '../publishers/userRegistered.publisher.js'
+import { publishUserForgotPassword } from '../publishers/forgotPassword.publisher.js'
 
 export const register = asyncHandler(async (req, res) => {
     const { userName, email, password } = req.body
