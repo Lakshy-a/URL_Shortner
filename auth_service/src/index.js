@@ -2,7 +2,8 @@ import { app } from './app.js'
 import { connectToRabbitMQ } from './config/connectToRabbitMq.config.js'
 import { databaseConnect } from './config/db.config.js'
 import { consumeUserCreatedShortUrl } from './consumers/createdShortUrl.consumer.js'
-import userRoutes from './routes/user.roues.js'
+import authRoutes from './routes/auth.roues.js'
+import userRoutes from './routes/user.routes.js'
 
 const port = process.env.PORT || 3000
 
@@ -13,7 +14,8 @@ app.get('/', (req, res) => {
     res.status(200).json({ message: 'Running okay' })
 })
 
-app.use('/api/v1/auth', userRoutes)
+app.use('/api/v1/auth', authRoutes)
+app.use('/api/v1/user', userRoutes)
 
 connectToRabbitMQ()
     .then(() => {
