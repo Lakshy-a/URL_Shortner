@@ -2,6 +2,7 @@ import { app } from './app.js'
 import { connectToRabbitMQ } from './config/connectToRabbitMq.config.js'
 import { databaseConnect } from './config/db.config.js'
 import { consumeUserCreatedShortUrl } from './consumers/createdShortUrl.consumer.js'
+import { consumeUrlClicked } from './consumers/urlClicked.consumer.js'
 import authRoutes from './routes/auth.roues.js'
 import userRoutes from './routes/user.routes.js'
 
@@ -20,7 +21,7 @@ app.use('/api/v1/user', userRoutes)
 connectToRabbitMQ()
     .then(() => {
         console.log('Connected to RabbitMQ')
-        consumeUserCreatedShortUrl()
+        ;(consumeUserCreatedShortUrl(), consumeUrlClicked())
     })
     .catch((err) => {
         console.error('Failed to connect to RabbitMQ:', err)

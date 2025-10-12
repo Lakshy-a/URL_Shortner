@@ -8,6 +8,7 @@ import { ErrorResponse } from '../utils/errorResponse.utils copy.js'
 import { Url } from '../models/url.model.js'
 import { publishUserCreatedShortUrl } from '../publishers/createdShortUrl.publisher.js'
 import exp from 'constants'
+import { publishUrlClicked } from '../publishers/urlClicked.publisher.js'
 
 export const shortenUrl = asyncHandler(async (req, res) => {
     const { originalUrl } = req.body
@@ -49,6 +50,17 @@ export const redirectToOriginalUrl = asyncHandler(async (req, res) => {
 
     urlEntry.clicks += 1
     await urlEntry.save()
+
+    if (urlEntry.userId) {
+        publishUrlClicked({
+            userId: urlEntry.userId,
+            shortUrlObjectId: urlEntry._id,
+            // shortCode: urlEntry.shortCode,
+            // originalUrl: urlEntry.originalUrl,
+            // clicks: urlEntry.clicks,
+            clickedAt: new Date(),
+        })
+    }
 
     res.redirect(urlEntry.originalUrl)
 })
