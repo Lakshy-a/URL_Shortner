@@ -13,3 +13,15 @@ export const getAllShortenedUrls = asyncHandler(async (req, res) => {
 
     res.status(200).json({ shortenedUrls: user.shortUrls })
 })
+
+// to get all shortened urls of a specific user by userId
+export const getAllShortenedUrlsByUserId = asyncHandler(async (req, res) => {
+    const { userId } = req.params
+
+    const user = await User.findById(userId).select('shortUrls')
+    if (!user) {
+        throw new ErrorResponse('User not found', 404)
+    }
+
+    res.status(200).json({ shortenedUrls: user.shortUrls })
+})
